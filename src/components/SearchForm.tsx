@@ -7,19 +7,13 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  useDisclosure,
-  FormControl,
-  FormLabel,
-  Input,
   Box
 } from '@chakra-ui/react'
-import {Form, Formik, useFormik} from 'formik'
-import { FocusableElement } from '@chakra-ui/utils'
-import React, { RefObject, useState } from 'react'
-import Yup from 'yup'
+import {Form, Formik} from 'formik'
+import React, { useState } from 'react'
 import { InputField } from './Input'
 import { useMoralisWeb3Api } from 'react-moralis'
-import { CHAIN, GET_NFTs_BY_CONTRACT_ADDRESS, GET_NFTs_BY_CONTRACT_ADDRESS_AND_OWNER_ADDRESS, GET_NFTs_BY_KEYWORD, GET_NFTs_BY_OWNER_ADDRESS, GET_NFT_BY_TOKENID, GET_NFT_OWNER_BY_CONTRACT_ADDRESS } from '../constants'
+import { CHAIN, GET_NFTs_BY_CONTRACT_ADDRESS, GET_NFTs_BY_CONTRACT_ADDRESS_AND_OWNER_ADDRESS, GET_NFTs_BY_KEYWORD, GET_NFTs_BY_OWNER_ADDRESS, GET_NFT_BY_TOKENID, GET_NFT_OWNER_BY_CONTRACT_ADDRESS, nftSearchType, resultType } from '../constants'
 import SelectInput from './SelectInput'
 import { useNft } from '../context/main-data'
 
@@ -59,37 +53,11 @@ type searchType = {
   tokenId: string
 }
 
-export type nftSearchType = {
+export type nftSearchByTokenType = {
   total?: number | undefined;
   page?: number | undefined;
   page_size?: number | undefined;
-  result?: ({
-      token_address: string;
-      token_id: string;
-      contract_type: string;
-      token_uri: string;
-      metadata: string;
-      synced_at: string;
-  } & {
-      token_hash: unknown;
-  })[] | undefined;
-}
-
-type nftSearchByTokenType = {
-  total?: number | undefined;
-  page?: number | undefined;
-  page_size?: number | undefined;
-  result?: {
-      token_address: string;
-      token_id: string;
-      contract_type: string;
-      token_uri?: string | undefined;
-      metadata?: string | undefined;
-      synced_at?: string | undefined;
-      amount?: string | undefined;
-      name: string;
-      symbol: string;
-  }[] | undefined;
+  result?: resultType[] | undefined;
 }
 
 type nftSearchByOwnerAddress = {
@@ -150,7 +118,7 @@ const types: selectType[] = [
 export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose: () => void})> = ({onOpen, isOpen, onClose}) => {
   const Web3Api = useMoralisWeb3Api()
   const [NFTs, setNFTs] = useState<nftsType>()
-  const {nft, setNft} = useNft()
+  const {nfts, saveNft} = useNft()
   const [NFTsSearch, setNFTsSearch] = useState<nftSearchType>()
   const [nftSearchByToken, setnftSearchByToken] = useState<nftSearchByTokenType>()
   const [nftSearchByOwner, setnftSearchByOwner] = useState<nftSearchByTokenType>()
@@ -163,7 +131,9 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
         const tmpNFTs = await Web3Api.account.getNFTsForContract({
           chain: values.chain, 
           address: values.ownerAddress, 
-          token_address: values.contractAddress
+          token_address: values.contractAddress,
+          offset: 0,
+          limit: 10
         });
         setNFTs(tmpNFTs)
         break
@@ -171,15 +141,21 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
       case GET_NFTs_BY_CONTRACT_ADDRESS: {
         const tmpNFTs = await Web3Api.token.getAllTokenIds({
           chain: values.chain, 
-          address: values.contractAddress
+          address: values.contractAddress,
+          offset: 0,
+          limit: 10
         })
-        console.log("tmpNFTs: ", tmpNFTs)
+        if(saveNft) {
+          saveNft(tmpNFTs)
+        }
         break
       }
       case GET_NFTs_BY_OWNER_ADDRESS: {
         const tmpNFTs = await Web3Api.account.getNFTs({
           chain: values.chain, 
-          address: values.ownerAddress
+          address: values.ownerAddress,
+          offset: 0,
+          limit: 10
         })
         setNFTs(tmpNFTs)
         console.log("tmpNFTs: ", tmpNFTs)
@@ -197,7 +173,9 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
       case GET_NFT_OWNER_BY_CONTRACT_ADDRESS: {
         const tmpNFTs = await Web3Api.token.getNFTOwners({
           chain: values.chain,
-          address: values.contractAddress
+          address: values.contractAddress,
+          offset: 0,
+          limit: 10
         })
         console.log("tmpNFTs: ", tmpNFTs)
         setNFTs(tmpNFTs)
@@ -208,14 +186,16 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
         const tmpNFTs = await Web3Api.token.searchNFTs({
           chain: values.chain, 
           q: values.keyword,
-          filter: "name"
+          filter: "name",
+          offset: 0,
+          limit: 10
         })
         console.log("tmpNFTs: ", tmpNFTs)
         setNFTsSearch(tmpNFTs)
         break
       }
     }
-    setNft(NFTs)
+    onClose()
   }
 
   const handleChangeChain = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -223,6 +203,7 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
   }
 
   const handleChangeType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log("e.target.value: ", e.target.value)
     setType(parseInt(e.target.value))
   }
   return (
@@ -236,7 +217,9 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
           initialValues={initialSearch}
           onSubmit={async function(values) {
             values.chain = chain
+            values.type = type
             console.log("values: ", values)
+            await getNFTs(values)
           }}
         >
           <Form >

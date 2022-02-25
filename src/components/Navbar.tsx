@@ -1,38 +1,27 @@
 import {
     Box,
     Flex,
-    Avatar,
     Link,
     Button,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    MenuDivider,
+    Image,
     useDisclosure,
     useColorModeValue,
     Stack,
     useColorMode,
     Center,
-    HStack,
-    Text
+    Text,
+    HStack
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons'
 import NextLink from 'next/link'
 import { ReactNode, useEffect } from 'react'
 import { useMoralis } from "react-moralis"
-import avatarImage from '../../public/username.svg'
+import avatarLogo from '../../public/logo.png'
+import avatarLogoDark from '../../public/logo-black.png'
 import { SearchForm } from './SearchForm';
 
 interface navbarInterface{ 
 
-}
-
-interface navLinkInterface{
-    href: string, 
-    path?: string, 
-    target?: string,
-    children: string
 }
 
 type LinkObject = {
@@ -83,11 +72,11 @@ export const Navbar: React.FC<navbarInterface> = (props) => {
     }, [user])
 
     return (
-    <>
-        <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
+        <Flex position="sticky" top={0} zIndex={1} >
+        <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4} width="100%">
             <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
             <HStack spacing={8} alignItems={'center'}>
-                <Box>Logo</Box>
+                <Image src={colorMode == 'light' ? avatarLogoDark.src : avatarLogo.src} alt="" maxWidth="20%"/>
                 <HStack
                 as={'nav'}
                 spacing={4}
@@ -150,6 +139,6 @@ export const Navbar: React.FC<navbarInterface> = (props) => {
             </Flex>
             </Flex>
         </Box>
-        </>
+        </Flex>
     );    
 }

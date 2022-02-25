@@ -13,7 +13,7 @@ const Layout: React.FC<layoutInterfaces> = (props) => {
     return (
         <NftProvider>
             <Navbar/>
-                <main style={{height: "calc(100vh - 136px)"}}>{children}</main>
+            <main style={{minHeight: "calc(100vh - 136px)", overflow: "auto"}}>{children}</main>
             <Footer/>
         </NftProvider>
     )

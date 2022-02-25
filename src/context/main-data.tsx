@@ -1,42 +1,26 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react'
+import { nftSearchByTokenType, nftsType } from '../components/SearchForm'
 
-interface INftContext {
-  nft?: any,
-  setNft?: any
-}
-
-type nftsType = {
-  status?: string | undefined;
-  total?: number | undefined;
-  page?: number | undefined;
-  page_size?: number | undefined;
-  result?: {
-      token_address: string;
-      token_id: string;
-      contract_type: string;
-      owner_of: string;
-      block_number: string;
-      block_number_minted: string;
-      token_uri?: string | undefined;
-      metadata?: string | undefined;
-      synced_at?: string | undefined;
-      amount?: string | undefined;
-      name: string;
-      symbol: string;
-  }[] | undefined;
+type NftContext = {
+  nfts?: nftSearchByTokenType,
+  saveNft?: (nft: nftSearchByTokenType | undefined) => void,
 }
 
 const defaultNft = {}
 
-const NftContext = createContext<INftContext>(defaultNft)
+const NftContext = createContext<NftContext| null | undefined>(undefined)
 
 export function NftProvider({ children }: {children: ReactNode}) {
-  const [nft, setNft] = useState({})
+  const [nfts, setNft] = useState<nftSearchByTokenType>()
+  const saveNft = (nft: nftSearchByTokenType | undefined) => {
+    setNft(nft)
+  }
+
   return (
     <NftContext.Provider
       value={{
-        nft,
-        setNft
+        nfts,
+        saveNft
       }}
     >
       {children}

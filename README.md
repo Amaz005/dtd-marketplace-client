@@ -28,6 +28,17 @@ Boilerplate for interact with moralis
 
 ## Started
 
+Install
+
+```sh
+yarn or npm i
+```
+Run
+
+```sh
+yarn dev
+```
+
 
 [//]: #
 [react-moralis]: <https://yarnpkg.com/?q=react-moralis>

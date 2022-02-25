@@ -101,3 +101,31 @@ export const CHAIN = [
     value: "0xfa"
   } 
 ]
+
+export type nftSearchType = {
+  total?: number | undefined;
+  page?: number | undefined;
+  page_size?: number | undefined;
+  result?: ({
+      token_address: string;
+      token_id: string;
+      contract_type: string;
+      token_uri: string;
+      metadata: string;
+      synced_at: string;
+  } & {
+      token_hash: unknown;
+  })[] | undefined;
+}
+
+export type resultType = {
+  token_address: string;
+  token_id: string;
+  contract_type: string;
+  token_uri?: string | undefined;
+  metadata?: string | undefined;
+  synced_at?: string | undefined;
+  amount?: string | undefined;
+  name: string;
+  symbol: string;
+}

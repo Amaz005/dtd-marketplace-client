@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, chakra, Container, Divider, IconButton, Input, Stack, Text, useColorModeValue, VisuallyHidden } from '@chakra-ui/react'
+import { Box, Button, ButtonGroup, chakra, Container, Divider, IconButton, Input, Stack, Text, useColorMode, useColorModeValue, VisuallyHidden } from '@chakra-ui/react'
 import * as React from 'react'
 import { ReactNode } from 'react';
 import { FaGithub, FaInstagram, FaLinkedin, FaTwitter, FaYoutube } from 'react-icons/fa'
@@ -35,13 +35,14 @@ const SocialButton = ({
     );
   };
 
-const Footer: React.FC<({})> = () => (
+const Footer: React.FC<({})> = () => {
+  return (
     <Box
       bg={useColorModeValue('gray.50', 'gray.900')}
       color={useColorModeValue('gray.700', 'gray.200')}>
       <Container
         as={Stack}
-        maxW={'6xl'}
+        maxW={'8xl'}
         py={4}
         direction={{ base: 'column', md: 'row' }}
         spacing={4}
@@ -62,6 +63,6 @@ const Footer: React.FC<({})> = () => (
         </Stack>
       </Container>
     </Box>
-)
-
+  )
+}
 export default Footer
