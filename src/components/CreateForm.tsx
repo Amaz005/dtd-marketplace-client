@@ -13,7 +13,7 @@ import {
 import {Form, Formik} from 'formik'
 import React, { useState } from 'react'
 import { InputField } from './Input'
-import { useMoralisWeb3Api,useMoralisWeb3ApiCall } from 'react-moralis'
+import { useMoralisWeb3Api,useMoralis } from 'react-moralis'
 import * as Yup from 'yup'
 import uploadToIPFS from '../utils/Ipfs'
 import {readFileSync, showFile} from '../utils/readFileSync'
@@ -42,35 +42,60 @@ export const CreateForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
   const Web3Api = useMoralisWeb3Api()
   const { native } = useMoralisWeb3Api();
   const [type, setType] = useState<number>(1);
-  const [fileURI, setFileURI] = useState(null)
-  const [fileToUpload, setFileToUpload] = useState(null)
+  const { authenticate, isAuthenticated, user, logout} = useMoralis();
+  const [listFiles, setListFiles] = useState<any[]>([]);
+  const [listFilesToUpload, setListFilesToUpload] = useState<any[]>([]);
 
-
-  async function getNFTs(values: createType) {
-      console.log({values})
-      console.log({fileURI})
-
-      const _options: optionsCall = {
-        chain: "bsc testnet",
-        address: "0xfdC26cd4214702bd724032f789a28dc6Ab869b68",
-        function_name: "ownerOf",
-        abi: Dog,
-        params: {
-          tokenId: 1
-        },
+  async function callContract(values: createType) {
+    const fullObjectHash: any[] = [];
+    for (let i = 0; i < listFilesToUpload.length; i++) {
+      const fileAsArrayBuffer = await readFileSync(listFilesToUpload[i]);
+      const ipfsImagePath = await uploadToIPFS(fileAsArrayBuffer);
+      if (!fileAsArrayBuffer) {
+          return null
+      }
+      console.log("ipfsImagePath: ", ipfsImagePath)
+      console.log(`image uri: https://ipfs.io/ipfs/${ipfsImagePath}?filename=${listFiles[i].name}`)
+      const json = {
+          name: values.title,
+          description: values.description || ``,
+          image: `https://ipfs.io/ipfs/${ipfsImagePath}?filename=${listFiles[i].name}`,
+          external_url: "",
+          attributes: [],
       };
-      const transaction = await Web3Api.native.runContractFunction(_options);
-      
-      console.log(JSON.stringify(transaction))
+      fullObjectHash.push(await uploadToIPFS(JSON.stringify(json)));
+    }
+    console.log({fullObjectHash})
+    const userWallet = user?.attributes.ethAddress
+    const _options: optionsCall = {
+      chain: "bsc testnet",
+      address: "0xc98498Eba01A506AD277FD9254A238B44D8882dc",
+      function_name: "mint",
+      abi: Dog,
+      params: {
+        to: userWallet,
+        quantity: 0,
+        cids: []
+      },
+    };
+    const transaction = await Web3Api.native.runContractFunction(_options);
+    
+    console.log(JSON.stringify(transaction))
     onClose()
   }
 
   const onChange = async (e: any) => {
-    const fileToUpload = e.target.files[0]
-    setFileToUpload(fileToUpload)
-    console.log("Filename: ", fileToUpload.name)
-    const fileToShow = await showFile(fileToUpload)
-    setFileURI(fileToShow)
+      const _listFilesUpload: any[] = []
+      const _listFiles: any[] = []
+      for (let file of e.target.files) {
+        console.log("file >>> ", file);
+      
+        _listFilesUpload.push(file)
+        const fileToShow = await showFile(file)
+        _listFiles.push(fileToShow)
+      }
+      setListFilesToUpload(_listFilesUpload)
+      setListFiles(_listFiles)
   }
 
   return (
@@ -89,9 +114,7 @@ export const CreateForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
             .required("Required!")
           })}
           onSubmit={async function(values) {
-            console.log("values: ", values)
-
-            await getNFTs(values)
+            await callContract(values)
           }}
         >
           <Form >
@@ -118,19 +141,20 @@ export const CreateForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
                       <input
                               type="file"
                               name="file"
+                              multiple
                               accept="image/*"
                               onChange={onChange}
                           />
                           {
-                              fileURI && (
-                                <Box style={{display: 'flex', justifyContent: 'center'}}>
-                                  <Image 
-                                      alt="Mountains" 
-                                      src={fileURI} 
-                                      style={{objectFit: "contain"}}
-                                  />
-                                </Box>
-                              )
+                            (listFiles|| []).map((data) => 
+                              <Box style={{display: 'flex', justifyContent: 'center'}}>
+                                <Image 
+                                    alt="Mountains" 
+                                    src={data} 
+                                    style={{objectFit: "contain"}}
+                                />
+                              </Box>
+                            )
                           }
                       </Box>
               </ModalBody>
