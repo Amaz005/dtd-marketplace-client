@@ -120,8 +120,6 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
   const [NFTs, setNFTs] = useState<nftsType>()
   const {nfts, saveNft} = useNft()
   const [NFTsSearch, setNFTsSearch] = useState<nftSearchType>()
-  const [nftSearchByToken, setnftSearchByToken] = useState<nftSearchByTokenType>()
-  const [nftSearchByOwner, setnftSearchByOwner] = useState<nftSearchByTokenType>()
   const [chain, setChain] = useState<searchType["chain"]>("eth");
   const [type, setType] = useState<number>(1);
 
@@ -145,6 +143,7 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
           offset: 0,
           limit: 10
         })
+        console.log("tmpNFTs: ",tmpNFTs)
         if(saveNft) {
           saveNft(tmpNFTs)
         }

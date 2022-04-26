@@ -6,8 +6,6 @@ type NftContext = {
   saveNft?: (nft: nftSearchByTokenType | undefined) => void,
 }
 
-const defaultNft = {}
-
 const NftContext = createContext<NftContext| null | undefined>(undefined)
 
 export function NftProvider({ children }: {children: ReactNode}) {
@@ -27,6 +25,8 @@ export function NftProvider({ children }: {children: ReactNode}) {
     </NftContext.Provider>
   )
 }
+
+
 
 export function useNft() {
   const context = useContext(NftContext)

@@ -13,18 +13,11 @@ export default function Home() {
   const {nfts} = useNft()
   const [result, setResult] = useState<resultType[]>([])
   useEffect(() => {
-    if(nfts && nfts.result && nfts.result) {
+    if(nfts && nfts.result) {
+      console.log("index nft: ",nfts)
       setResult(nfts?.result)
     }
   }, [nfts])
-
-  const handleCheckButton = () => {
-    if(result && result[0].metadata) {
-      const object = result[0].metadata.replace("\\\"", "")
-      console.log(result)
-      console.log(JSON.parse(object))
-    }
-  }
 
   return (
     <Box>
