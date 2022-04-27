@@ -26,8 +26,6 @@ export function NftProvider({ children }: {children: ReactNode}) {
   )
 }
 
-
-
 export function useNft() {
   const context = useContext(NftContext)
 

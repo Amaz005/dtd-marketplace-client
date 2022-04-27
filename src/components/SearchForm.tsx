@@ -202,7 +202,6 @@ export const SearchForm: React.FC<({onOpen: () => void, isOpen: boolean, onClose
   }
 
   const handleChangeType = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("e.target.value: ", e.target.value)
     setType(parseInt(e.target.value))
   }
   return (
